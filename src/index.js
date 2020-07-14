@@ -1,25 +1,14 @@
-import { reactive, toRefs } from 'vue'
+import { reactive, toRefs, provide, inject } from 'vue'
 import StaticAxios from 'axios'
-import LRU from 'lru-cache'
 
-const useAxios = makeUseAxios()
+const AxiosSymbol = window.Symbol()
 
-const {
-  configure
-} = useAxios
+const state = reactive({
+  loading: false,
+  data: null
+})
 
-export default useAxios
-
-export {
-  configure
-}
-
-function createCacheKey (config) {
-  const cleanedConfig = { ...config }
-  delete cleanedConfig.cancelToken
-
-  return JSON.stringify(cleanedConfig)
-}
+let axiosInstance
 
 function configToObject (config) {
   if (typeof config === 'string') {
@@ -31,118 +20,49 @@ function configToObject (config) {
   return config
 }
 
-export function makeUseAxios (configurationOptions) {
-  const state = reactive({
-    loading: false,
-    data: null
-  })
-
-  console.log(1, configurationOptions)
-  let cache
-  let axiosInstance
-
-  function resetConfigure () {
-    cache = new LRU()
-    axiosInstance = StaticAxios
+function useConfigure (options = {}) {
+  if (options.axios !== undefined) {
+    // axiosInstance = options.axios
+    console.log('1')
+    provide(AxiosSymbol, options.axios)
   }
+}
 
-  function configure (options = {}) {
-    console.log(2, options)
-    if (options.axios !== undefined) {
-      axiosInstance = options.axios
-    }
+async function executeRequest (config) {
+  try {
+    state.loading = true
 
-    if (options.cache !== undefined) {
-      cache = options.cache
-    }
+    const response = await axiosInstance(config)
+    state.data = response
+
+    return response
+  } catch (err) {
+    console.log(err)
+    throw err
+  } finally {
+    state.loading = false
   }
+}
 
-  resetConfigure()
-  configure(configurationOptions)
+function request (config) {
+  return executeRequest(config)
+}
 
-  // function loadCache (data) {
-  //   cache.load(data)
-  // }
+function useAxios (config) {
+  config = configToObject(config)
 
-  // function clearCache () {
-  //   cache.reset()
-  // }
+  axiosInstance = inject(AxiosSymbol, StaticAxios)
 
-  return Object.assign(useAxios, {
-    resetConfigure,
-    configure
-  })
-  // return useAxios
+  const refetch = () => request(config)
 
-  function tryStoreInCache (config, response) {
-    if (!cache) {
-      return
-    }
-
-    const cacheKey = createCacheKey(config)
-
-    const responseForCache = { ...response }
-    delete responseForCache.config
-    delete responseForCache.request
-
-    cache.set(cacheKey, responseForCache)
+  return {
+    ...toRefs(state),
+    refetch
   }
+}
 
-  // function tryGetFromCache (config, options) {
-  //   if (!cache || !options.useCache) {
-  //     return
-  //   }
+export default useAxios
 
-  //   const cacheKey = createCacheKey(config)
-  //   const response = cache.get(cacheKey)
-
-  //   // if (response && dispatch) {
-  //   //   dispatch({ type: actions.REQUEST_END, payload: response })
-  //   // }
-
-  //   return response
-  // }
-
-  async function executeRequest (config) {
-    try {
-      // dispatch({ type: actions.REQUEST_START })
-      state.loading = true
-      const response = await axiosInstance(config)
-
-      tryStoreInCache(config, response)
-      state.data = response
-      state.loading = false
-      // dispatch({ type: actions.REQUEST_END, payload: response })
-
-      return response
-    } catch (err) {
-      if (!StaticAxios.isCancel(err)) {
-        // dispatch({ type: actions.REQUEST_END, payload: err, error: true })
-      }
-
-      throw err
-    }
-  }
-
-  async function request (config, options) {
-    console.log(4, config)
-    return (
-      // tryGetFromCache(config, options) ||
-      executeRequest(config)
-    )
-  }
-
-  function useAxios (config, options) {
-    config = configToObject(config)
-    options = { manual: false, useCache: true, ...options }
-
-    console.log(3, config, options)
-
-    const run = () => request(config, options)
-
-    return {
-      ...toRefs(state),
-      run
-    }
-  }
+export {
+  useConfigure
 }

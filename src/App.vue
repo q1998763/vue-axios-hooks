@@ -1,29 +1,29 @@
 <template>
   <div>
-    <div>
-      {{ loading }}
-      {{ data }}
-    </div>
-    <button @click="run">refetch</button>
+    <hello-world />
   </div>
 </template>
 
 <script>
-import useAxios from './index'
+import Axios from 'axios'
+import { useConfigure } from './index.js'
+import HelloWorld from '@/components/HelloWorld.vue'
 
 export default {
+  components: {
+    HelloWorld
+  },
   setup () {
-    const { run, loading, data } = useAxios({
-      method: 'get',
-      url: '/users?delay=1'
+    const axios = Axios.create({
+      baseURL: 'https://reqres.in/api'
     })
 
-    run()
-    return {
-      loading,
-      run,
-      data
-    }
+    axios.interceptors.response.use(
+      (res) => {
+        return res.data
+      }
+    )
+    useConfigure({ axios })
   }
 }
 </script>

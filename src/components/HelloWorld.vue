@@ -1,18 +1,29 @@
 <template>
   <div class="hello">
-    name: {{ store.name }}
+    <div>
+      {{ loading }}
+      {{ data }}
+    </div>
+    <button @click="refetch">refetch</button>
   </div>
 </template>
 
 <script>
-import useStore from '@/store'
+import useAxios from '../index'
 
 export default {
   setup () {
-    const { store } = useStore()
+    const { refetch, loading, data } = useAxios({
+      method: 'get',
+      url: '/users?delay=1'
+    })
+
+    refetch()
 
     return {
-      store
+      loading,
+      refetch,
+      data
     }
   }
 }
