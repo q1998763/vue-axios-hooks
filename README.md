@@ -33,3 +33,5 @@ export default {
 ## License
 
 MIT
+
+[axios]: https://github.com/axios/axios
