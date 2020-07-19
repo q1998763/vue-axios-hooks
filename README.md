@@ -30,6 +30,14 @@ export default {
 </script>
 ```
 
+## Option
+```js
+useAxios({}, {
+  cancel: true // default true
+})
+```
+
+
 ## License
 
 MIT
