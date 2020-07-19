@@ -1,6 +1,8 @@
 import { reactive, toRefs, provide, inject } from 'vue'
 import StaticAxios from 'axios'
 
+const CancelToken = StaticAxios.CancelToken
+let cancel
 const AxiosSymbol = window.Symbol()
 
 const state = reactive({
@@ -22,38 +24,45 @@ function configToObject (config) {
 
 function useConfigure (options = {}) {
   if (options.axios !== undefined) {
-    // axiosInstance = options.axios
-    console.log('1')
     provide(AxiosSymbol, options.axios)
   }
 }
 
-async function executeRequest (config) {
-  try {
-    state.loading = true
+async function executeRequest (config, options = { cancel: true }) {
+  const opts = {}
 
-    const response = await axiosInstance(config)
+  opts.cancelToken = new CancelToken(function (c) {
+    cancel = c
+  })
+
+  state.loading = true
+  axiosInstance({
+    ...config,
+    ...opts
+  }).then(response => {
     state.data = response
-
-    return response
-  } catch (err) {
-    console.log(err)
-    throw err
-  } finally {
+  }).catch(err => {
+    if (!StaticAxios.isCancel(err)) {
+      console.log(err)
+    }
+  }).finally(() => {
     state.loading = false
+  })
+}
+
+function request (config, options) {
+  if (options.cancel && cancel) {
+    cancel('Operation canceled by the user.')
   }
+  return executeRequest(config, options)
 }
 
-function request (config) {
-  return executeRequest(config)
-}
-
-function useAxios (config) {
+function useAxios (config, options) {
   config = configToObject(config)
 
   axiosInstance = inject(AxiosSymbol, StaticAxios)
 
-  const refetch = () => request(config)
+  const refetch = () => request(config, options)
 
   return {
     ...toRefs(state),

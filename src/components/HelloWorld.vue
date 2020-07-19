@@ -16,6 +16,8 @@ export default {
     const { refetch, loading, data } = useAxios({
       method: 'get',
       url: '/users?delay=1'
+    }, {
+      cancel: true
     })
 
     refetch()
