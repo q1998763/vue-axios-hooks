@@ -23,20 +23,13 @@ export default {
     return {
       loading,
       refetch,
-      data
+      data,
+      cancel
     }
   }
 }
 </script>
 ```
-
-## Option
-```js
-useAxios({}, {
-  cancel: true // default true
-})
-```
-
 
 ## License
 

@@ -4,7 +4,8 @@
       {{ loading }}
       {{ data }}
     </div>
-    <button @click="refetch">refetch</button>
+    <button @click="getData">refetch</button>
+    <button @click="cancel">cancel</button>
   </div>
 </template>
 
@@ -13,19 +14,21 @@ import useAxios from '../index'
 
 export default {
   setup () {
-    const { refetch, loading, data } = useAxios({
+    const { refetch, loading, data, cancel } = useAxios({
       method: 'get',
       url: '/users?delay=1'
-    }, {
-      cancel: true
     })
 
-    refetch()
+    const getData = () => {
+      cancel && cancel()
+      refetch()
+    }
 
     return {
       loading,
-      refetch,
-      data
+      getData,
+      data,
+      cancel
     }
   }
 }

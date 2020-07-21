@@ -1,8 +1,6 @@
 import { reactive, toRefs, provide, inject } from 'vue'
-import StaticAxios from 'axios'
+import StaticAxios, { CancelToken } from 'axios'
 
-const CancelToken = StaticAxios.CancelToken
-let cancel
 const AxiosSymbol = window.Symbol()
 
 const state = reactive({
@@ -28,12 +26,9 @@ function useConfigure (options = {}) {
   }
 }
 
-async function executeRequest (config, options = { cancel: true }) {
+async function executeRequest (config, options) {
   const opts = {}
-
-  opts.cancelToken = new CancelToken(function (c) {
-    cancel = c
-  })
+  opts.cancelToken = options.cancelToken
 
   state.loading = true
   axiosInstance({
@@ -51,22 +46,30 @@ async function executeRequest (config, options = { cancel: true }) {
 }
 
 function request (config, options) {
-  if (options.cancel && cancel) {
-    cancel('Operation canceled by the user.')
-  }
   return executeRequest(config, options)
 }
 
-function useAxios (config, options) {
+function useAxios (config, options = {}) {
   config = configToObject(config)
+
+  let source = CancelToken.source()
+  options.cancelToken = source.token
 
   axiosInstance = inject(AxiosSymbol, StaticAxios)
 
   const refetch = () => request(config, options)
 
+  function cancel () {
+    source.cancel()
+
+    source = CancelToken.source()
+    options.cancelToken = source.token
+  }
+
   return {
     ...toRefs(state),
-    refetch
+    refetch,
+    cancel
   }
 }
 
