@@ -14,7 +14,7 @@ import useAxios from 'vue-axios-hooks'
 
 export default {
   setup () {
-    const { refetch, loading, data } = useAxios({
+    const { refetch, loading, data, cancel } = useAxios({
       url: 'https://reqres.in/api/users?delay=1'
     })
 
