@@ -18,10 +18,8 @@
   "dependencies": {
     "axios": "^0.19.2",
     "core-js": "^3.6.5",
-    "lru-cache": "^5.1.1",
     "rollup": "^2.21.0",
     "rollup-plugin-vue": "^6.0.0-beta.6",
-    "slate": "^0.58.4",
     "vue": "^3.0.0-beta.1"
   },
   "devDependencies": {
