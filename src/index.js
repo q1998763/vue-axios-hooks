@@ -5,7 +5,8 @@ const AxiosSymbol = window.Symbol()
 
 const state = reactive({
   loading: false,
-  data: null
+  data: null,
+  error: null
 })
 
 let axiosInstance
@@ -26,7 +27,7 @@ function useConfigure (options = {}) {
   }
 }
 
-async function executeRequest (config, options) {
+function request (config, options) {
   const opts = {}
   opts.cancelToken = options.cancelToken
 
@@ -40,13 +41,11 @@ async function executeRequest (config, options) {
     if (!StaticAxios.isCancel(err)) {
       console.log(err)
     }
+
+    state.error = err
   }).finally(() => {
     state.loading = false
   })
-}
-
-function request (config, options) {
-  return executeRequest(config, options)
 }
 
 function useAxios (config, options = {}) {

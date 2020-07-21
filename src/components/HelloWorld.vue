@@ -6,6 +6,8 @@
     </div>
     <button @click="getData">refetch</button>
     <button @click="cancel">cancel</button>
+    <button @click="getError">error</button>
+    {{ error }}
   </div>
 </template>
 
@@ -19,16 +21,24 @@ export default {
       url: '/users?delay=1'
     })
 
+    const { refetch: errorFetch, error } = useAxios('https://reqres.in/api/unknown/23?delay=1')
+
     const getData = () => {
       cancel && cancel()
       refetch()
+    }
+
+    const getError = () => {
+      errorFetch()
     }
 
     return {
       loading,
       getData,
       data,
-      cancel
+      cancel,
+      getError,
+      error
     }
   }
 }
