@@ -1,4 +1,6 @@
 # vue-axios-hooks
+[![npm version](https://badge.fury.io/js/vue-axios-hooks.svg)](https://badge.fury.io/js/vue-axios-hooks)
+[![bundlephobia](https://badgen.net/bundlephobia/minzip/vue-axios-hooks)](https://bundlephobia.com/result?p=vue-axios-hooks)
 
 Vue3 hooks for [axios]
 
