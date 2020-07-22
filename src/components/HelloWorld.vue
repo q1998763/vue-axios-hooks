@@ -19,12 +19,13 @@ export default {
     const { refetch, loading, data, cancel } = useAxios({
       method: 'get',
       url: '/users?delay=1'
+    }, {
+      debounce: 300
     })
 
     const { refetch: errorFetch, error } = useAxios('https://reqres.in/api/unknown/23?delay=1')
 
     const getData = () => {
-      cancel && cancel()
       refetch()
     }
 

@@ -58,6 +58,27 @@ export default {
 </script>
 ```
 
+## Debounce
+If `options.debounce` is set, requests except for the last one within the debounce interval will be dropped.
+```js
+const { refetch, loading, data } = useAxios({
+  url: 'https://reqres.in/api/users?delay=1'
+}, {
+  debounce: 300
+})
+```
+
+## Throttle
+If `options.throttle` is set, the request will be triggered once maximum within the throttle interval.
+```js
+const { refetch, loading, data } = useAxios({
+  url: 'https://reqres.in/api/users?delay=1'
+}, {
+  throttle: 1000
+})
+```
+> `debounce` and `throttle` can only be set to one
+
 ## License
 
 MIT

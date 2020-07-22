@@ -1,5 +1,6 @@
 import { reactive, toRefs, provide, inject } from 'vue'
 import StaticAxios, { CancelToken } from 'axios'
+import { debounce, throttle } from 'lodash'
 
 const AxiosSymbol = window.Symbol()
 
@@ -56,7 +57,15 @@ function useAxios (config, options = {}) {
 
   axiosInstance = inject(AxiosSymbol, StaticAxios)
 
-  const refetch = () => request(config, options)
+  let refetch
+  if (options.debounce) {
+    refetch = debounce(() => request(config, options), options.debounce)
+  } else if (options.throttle) {
+    console.log(options.throttle)
+    refetch = throttle(() => request(config, options), options.throttle)
+  } else {
+    refetch = () => request(config, options)
+  }
 
   function cancel () {
     source.cancel()
