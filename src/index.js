@@ -1,8 +1,7 @@
-import { reactive, toRefs, provide, inject } from 'vue'
+import { reactive, toRefs, inject } from 'vue'
 import StaticAxios, { CancelToken } from 'axios'
 import { debounce, throttle } from 'lodash'
-
-const AxiosSymbol = window.Symbol()
+import { useConfigure, AxiosSymbol } from './store'
 
 const state = reactive({
   loading: false,
@@ -20,12 +19,6 @@ function configToObject (config) {
   }
 
   return config
-}
-
-function useConfigure (options = {}) {
-  if (options.axios !== undefined) {
-    provide(AxiosSymbol, options.axios)
-  }
 }
 
 function request (config, options) {
